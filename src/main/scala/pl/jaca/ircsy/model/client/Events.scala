@@ -8,9 +8,9 @@ object Events {
 
   object Connected extends Event
 
-  case class JoinedChannel(channel: String)
+  case class JoinedChannel(channel: String) extends Event
 
-  case class LeftChannel(channel: String)
+  case class LeftChannel(channel: String) extends Event
 
   // Failures
 

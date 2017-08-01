@@ -5,9 +5,9 @@ import pl.jaca.ircsy.model.client.Protocol.{AuthCredentials, ServerDesc}
 object Actions {
   sealed trait Action
 
-  case class Connect(server: ServerDesc, nickname: String, authData: Option[AuthCredentials]) extends Action
+  case object Connect extends Action
 
-  object Disconnect extends Action
+  case object Disconnect extends Action
 
   case class SendMessage(channel: String, message: String) extends Action
 
