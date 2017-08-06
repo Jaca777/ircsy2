@@ -23,7 +23,6 @@ class IrcClient(
 
   def leaveChannel(channel: String) = ???
 
-  def disconnect() = ???
-
+  def stop() = ???
 
 }

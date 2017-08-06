@@ -35,11 +35,14 @@ class ClientActor(server: ServerDesc, nickname: String, credentials: Option[Auth
 
 
   private def pipeEvents(client: IrcClient) =
-    client.events().doOnNext(event => context.self ! event)
+    client.events().subscribe(
+      event => {
+        context.self ! event
+        Future.successful(Continue)
+      })
 
 
   def connected(channels: Set[String]): Receive = {
-
     // Actions
     case JoinChannel(channel) =>
       client.joinChannel(channel)
@@ -53,14 +56,18 @@ class ClientActor(server: ServerDesc, nickname: String, credentials: Option[Auth
     case SendPrivateMessage(user, msg) =>
       client.sendPrivateMessage(user, msg)
 
+    case Disconnect =>
+      client.stop()
+
     //State events
-    case event @ JoinedChannel(channel) =>
+    case event@JoinedChannel(channel) =>
       context become connected(channels + channel)
       persist(event)(publishEvent)
 
-    case event @ LeftChannel(channel) =>
+    case event@LeftChannel(channel) =>
       context become connected(channels - channel)
       saveSnapshot(ClientSnapshot(channels))
+      publishEvent(event)
 
     case Disconnected =>
       throw ClientDisconnectedException
@@ -83,8 +90,11 @@ class ClientActor(server: ServerDesc, nickname: String, credentials: Option[Auth
 }
 
 object ClientActor {
+
   case class ClientSnapshot(channels: Set[String])
 
   case object ClientDisconnectedException extends RuntimeException
+
   case object ClientFailedToConnectException extends RuntimeException
+
 }
