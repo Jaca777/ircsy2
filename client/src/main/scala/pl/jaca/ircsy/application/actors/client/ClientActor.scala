@@ -7,48 +7,54 @@ import monix.execution.Ack.Continue
 import monix.reactive.Observable
 import monix.reactive.subjects.{AsyncSubject, PublishSubject, Subject}
 import pl.jaca.ircsy.application.actors.client.ClientActor._
-import pl.jaca.ircsy.infrastructure.irc.IrcClient
+import pl.jaca.ircsy.infrastructure.actors.MessageLatching
+import pl.jaca.ircsy.infrastructure.irc.kitteh.KittehIrcClient
 import pl.jaca.ircsy.model.client.Actions._
 import pl.jaca.ircsy.model.client.Events._
 import pl.jaca.ircsy.model.client.Protocol._
 
 import scala.concurrent.Future
 
-class ClientActor(server: ServerDesc, nickname: String, credentials: Option[AuthCredentials]) extends PersistentActor with ActorLogging {
+class ClientActor(
+  server: ServerDesc,
+  nickname: String,
+  credentials: Option[AuthCredentials]
+) extends PersistentActor with ActorLogging with MessageLatching {
 
-  private val client = new IrcClient(server, nickname, credentials)
-  pipeEvents(client)
-  client.connect()
+  private val client = new KittehIrcClient(server, nickname, credentials)
 
-  override def receiveCommand: Receive = connecting
-
-  def connecting: Receive = {
-    case Connected =>
-      context become connected(Set.empty)
-
-    case FailedToConnect =>
-      throw ClientFailedToConnectException
-
-    case action: Action =>
-      log.warning(s"Unable to perform action $action, the client is not connected.")
+  override def preStart() : Unit = {
+    pipeEvents(client)
+    client.connect()
   }
 
-
-  private def pipeEvents(client: IrcClient) =
-    client.events().subscribe(
+  private def pipeEvents(client: KittehIrcClient) =
+    client.events.subscribe(
       event => {
         context.self ! event
         Future.successful(Continue)
       })
 
 
+  override def receiveCommand: Receive = connecting andThen latch
+
+  def connecting: Receive = {
+    case Connected =>
+      unlatchNow()
+      context become connected(Set.empty)
+
+    case FailedToConnect =>
+      throw ClientFailedToConnectException
+
+  }
+
   def connected(channels: Set[String]): Receive = {
     // Actions
     case JoinChannel(channel) =>
       client.joinChannel(channel)
 
-    case LeaveChannel(channel) =>
-      client.leaveChannel(channel)
+    case LeaveChannel(channel, msg) =>
+      client.leaveChannel(channel, msg)
 
     case SendMessage(channel, msg) =>
       client.sendMessage(channel, msg)
@@ -81,10 +87,7 @@ class ClientActor(server: ServerDesc, nickname: String, credentials: Option[Auth
 
   override def receiveRecover: Receive = {
     case JoinedChannel(channel) =>
-      client.events().doOnNext {
-        case Connected =>
-          self ! JoinChannel(channel)
-      }
+      self ! JoinChannel(channel)
   }
 
 }

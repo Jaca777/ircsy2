@@ -15,5 +15,5 @@ object Actions {
 
   case class JoinChannel(channel: String) extends Action
 
-  case class LeaveChannel(channel: String) extends Action
+  case class LeaveChannel(channel: String, msg: String) extends Action
 }
