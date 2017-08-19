@@ -1,4 +1,4 @@
-package pl.jaca.ircsy.model.client
+package pl.jaca.ircsy.model.irc
 
 object Events {
 
@@ -15,6 +15,14 @@ object Events {
   case class ReceivedChannelMessage(channel: String, msg: String) extends Event
 
   case class ReceivedPrivateMessage(sender: String, msg: String) extends Event
+
+  case class NumericEvent(code: Int) extends Event
+
+  case class ReceivedServerNotice(msg: String) extends Event
+
+  case class ReceivedClientCommand(command: String, params: List[String]) extends Event
+
+  case class UnsupportedEvent(details: String) extends Event
 
   // Failures
 

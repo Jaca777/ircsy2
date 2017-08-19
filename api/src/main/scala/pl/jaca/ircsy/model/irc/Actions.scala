@@ -1,13 +1,13 @@
-package pl.jaca.ircsy.model.client
+package pl.jaca.ircsy.model.irc
 
-import pl.jaca.ircsy.model.client.Protocol.{AuthCredentials, ServerDesc}
+import pl.jaca.ircsy.model.irc.Protocol.ClientData
 
 object Actions {
   sealed trait Action
 
-  case object Connect extends Action
-
   case object Disconnect extends Action
+
+  case class Connect(clientData: ClientData) extends Action
 
   case class SendMessage(channel: String, message: String) extends Action
 

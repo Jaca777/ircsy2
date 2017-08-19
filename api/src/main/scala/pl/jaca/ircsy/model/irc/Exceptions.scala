@@ -1,4 +1,4 @@
-package pl.jaca.ircsy.model.client
+package pl.jaca.ircsy.model.irc
 
 /**
   * @author Jaca777

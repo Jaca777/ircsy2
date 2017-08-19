@@ -1,2 +1,3 @@
 rootProject.name = 'Ircsy'
 include 'client'
+include 'api'
