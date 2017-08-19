@@ -1,6 +1,6 @@
 package pl.jaca.ircsy.infrastructure.irc
 import monix.reactive.Observable
-import pl.jaca.ircsy.model.client.Events
+import pl.jaca.ircsy.model.irc.Events
 
 import scala.collection.mutable
 import scala.util.Try
@@ -11,19 +11,19 @@ import scala.util.Try
   */
 trait IrcClient {
 
-  def connect(): Try[Unit]
+  def connect(): Unit
 
   def events: Observable[Events.Event]
 
-  def sendMessage(channel: String, msg: String): Try[Unit]
+  def sendChannelMessage(channel: String, msg: String): Unit
 
-  def sendPrivateMessage(receiver: String, msg: String): Try[Unit]
+  def sendPrivateMessage(receiver: String, msg: String): Unit
 
-  def joinChannel(channel: String): Try[Unit]
+  def joinChannel(channel: String): Unit
 
-  def leaveChannel(channel: String, reason: String): Try[Unit]
+  def leaveChannel(channel: String, reason: String): Unit
 
-  def getActiveChannels: mutable.Set[String]
+  def getActiveChannels: Set[String]
 
   def stop(): Unit
 }

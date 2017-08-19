@@ -18,11 +18,11 @@ trait MessageLatching {
   private var bufferedMessages = List[Any]()
 
   def latch: Receive = {
-    case any =>
-      this.bufferedMessages = any :: bufferedMessages
+    case msg =>
+      this.bufferedMessages = msg :: bufferedMessages
   }
 
-  def unlatchNow() = {
+  def unlatchNow(): Unit = {
     for {
       msg <- bufferedMessages
     } self ! msg

@@ -4,7 +4,7 @@ import monix.reactive.subjects.PublishSubject
 import net.engio.mbassy.listener.Handler
 import org.kitteh.irc.client.library.Client
 import org.kitteh.irc.client.library.event.helper.ClientEvent
-import pl.jaca.ircsy.model.client.Events
+import pl.jaca.ircsy.model.irc.Events
 
 /**
   * @author Jaca777
