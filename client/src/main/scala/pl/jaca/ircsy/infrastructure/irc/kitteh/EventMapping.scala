@@ -1,10 +1,11 @@
 package pl.jaca.ircsy.infrastructure.irc.kitteh
 
 import org.kitteh.irc.client.library.event.channel.{ChannelJoinEvent, ChannelMessageEvent}
-import org.kitteh.irc.client.library.event.client.{ClientConnectedEvent, ClientReceiveCommandEvent, ClientReceiveNumericEvent}
+import org.kitteh.irc.client.library.event.client.{ClientConnectedEvent, ClientConnectionClosedEvent, ClientReceiveCommandEvent, ClientReceiveNumericEvent}
 import org.kitteh.irc.client.library.event.helper.ClientEvent
 import org.kitteh.irc.client.library.event.user.{PrivateMessageEvent, ServerNoticeEvent}
 import pl.jaca.ircsy.model.irc.Events._
+
 import scala.collection.JavaConverters._
 
 /**
@@ -37,6 +38,9 @@ private[irc] object EventMapping {
 
     case e: ClientConnectedEvent =>
       Connected
+
+    case e: ClientConnectionClosedEvent =>
+      Disconnected
   }
 
 
